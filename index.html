@@ -853,550 +853,140 @@ function showInvoice(order) {
     document.getElementById('overlay').classList.add('show');
     modal.classList.add('show');
 
-    modal.style.width = 'min(720px, 95vw)';
-    modal.style.maxWidth = '720px';
-
-    const orderDate = new Date(order.createdAt).toLocaleString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    const paymentMethod = order.payment || 'Online Payment';
-
-    const totalAmount = money(order.total);
-
+    modal.style.width = 'min(520px,94vw)';
     modal.innerHTML = `
-        <div class="invoice-success-page">
+        <div class="modal-head">
+            <h3 class="display" style="margin:0">Order confirmed 🎉</h3>
+            <button class="btn btn-sm btn-ghost" onclick="closeDrawers()">✕</button>
+        </div>
 
-            <!-- SUCCESS ICON -->
-            <div class="success-icon">
-                ✓
-            </div>
+        <div class="modal-body">
 
-            <!-- THANK YOU -->
-            <h1 class="invoice-thank-you">
-                Thank You!
-            </h1>
+            <div class="invoice" id="invoice1">
 
-            <p class="invoice-success-text">
-                Your order has been placed successfully.
-                <br>
-                We've received your order confirmation.
-            </p>
+                <h2>The Midnight Store</h2>
 
-            <!-- ORDER ID -->
-            <div class="order-id-box">
-                <span class="order-id-icon">▣</span>
-                <span>
-                    Order ID:
-                    <b>${order.id}</b>
-                </span>
-            </div>
-
-            <!-- ORDER SUMMARY -->
-            <div class="invoice-summary">
-
-                <div class="summary-title">
-                    <span class="summary-icon">▤</span>
-                    <b>Order Summary</b>
+                <div style="font-size:12px;color:#666;margin-bottom:12px">
+                    Tax Invoice · Order ${order.id}<br>
+                    ${new Date(order.createdAt).toLocaleString('en-IN')}
                 </div>
 
-                <div class="summary-row">
-                    <span>
-                        <span class="row-icon blue">▣</span>
-                        Order Date
-                    </span>
-                    <b>${orderDate}</b>
+                <div style="font-size:12.5px;margin-bottom:10px">
+                    <b>Bill to:</b> ${order.username}, ${order.phone}<br>
+                    ${order.address}
                 </div>
 
-                <div class="summary-row">
-                    <span>
-                        <span class="row-icon purple">▣</span>
-                        Payment Method
-                    </span>
-                    <b>${paymentMethod}</b>
-                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
 
-                <div class="summary-row">
-                    <span>
-                        <span class="row-icon green">✓</span>
-                        Payment Status
-                    </span>
+                    <tbody>
+                        ${order.items.map(i => `
+                            <tr>
+                                <td>${i.emoji || ''} ${i.name}</td>
+                                <td>${i.qty}</td>
+                                <td>${money(i.price)}</td>
+                                <td>${money(i.price * i.qty)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
 
-                    <span class="paid-badge">
-                        Paid
-                    </span>
-                </div>
+                <div style="margin-top:10px;font-size:13px">
 
-                <div class="summary-row total-row">
-                    <span>
-                        <span class="row-icon red">₹</span>
-                        Total Amount
-                    </span>
-
-                    <b>${totalAmount}</b>
-                </div>
-
-            </div>
-
-            <!-- INVOICE READY -->
-            <div class="invoice-ready">
-
-                <div class="invoice-document-icon">
-                    <div class="document-paper">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                    <div style="display:flex;justify-content:space-between">
+                        <span>Subtotal</span>
+                        <span>${money(order.subtotal)}</span>
                     </div>
 
-                    <div class="download-circle">
-                        ↓
+                    <div style="display:flex;justify-content:space-between">
+                        <span>GST</span>
+                        <span>${money(order.tax)}</span>
                     </div>
+
+                    ${
+                        order.discount
+                        ? `
+                        <div style="display:flex;justify-content:space-between">
+                            <span>Discount</span>
+                            <span>-${money(order.discount)}</span>
+                        </div>
+                        `
+                        : ''
+                    }
+
+                    <div style="display:flex;justify-content:space-between">
+                        <span>Delivery</span>
+                        <span>
+                            ${order.deliveryFee === 0
+                                ? 'FREE'
+                                : money(order.deliveryFee)}
+                        </span>
+                    </div>
+
+                    <div
+                        style="
+                            display:flex;
+                            justify-content:space-between;
+                            font-weight:bold;
+                            margin-top:8px;
+                            padding-top:8px;
+                            border-top:1px solid #ddd;
+                        "
+                    >
+                        <span>Total paid (${order.payment})</span>
+                        <span>${money(order.total)}</span>
+                    </div>
+
                 </div>
 
-                <h2>Your invoice is ready!</h2>
-
-                <p>
-                    You can download your invoice for this order.
-                </p>
-
-                <button
-                    class="download-invoice-btn"
-                    onclick="printInvoiceOnly()"
-                >
-                    <span>↓</span>
-                    Download Invoice
-                </button>
-
             </div>
+
+            <button
+                class="btn btn-gold"
+                style="
+                    width:100%;
+                    justify-content:center;
+                    margin-top:14px;
+                "
+                onclick="printInvoiceOnly()"
+            >
+                🖨️ Print / Save invoice
+            </button>
 
         </div>
     `;
 
-    /* =====================================================
-       RESPONSIVE + INVOICE DESIGN
-       ===================================================== */
-
-    const style = document.createElement('style');
-
-    style.id = 'invoiceSuccessStyle';
-
-    style.innerHTML = `
-
-        .invoice-success-page {
-            width: 100%;
-            background: #ffffff;
-            padding: 38px 32px 42px;
-            text-align: center;
-            border-radius: 18px;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #172033;
-        }
-
-        /* SUCCESS ICON */
-
-        .success-icon {
-            width: 82px;
-            height: 82px;
-            margin: 0 auto 18px;
-            border-radius: 50%;
-            background: #e9f8ef;
-            color: #079455;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 52px;
-            font-weight: bold;
-            box-shadow: 0 0 0 10px #f5fcf7;
-        }
-
-        .invoice-thank-you {
-            margin: 0;
-            font-size: 42px;
-            line-height: 1.15;
-            font-weight: 700;
-            color: #162033;
-        }
-
-        .invoice-success-text {
-            margin: 12px 0 22px;
-            font-size: 17px;
-            line-height: 1.55;
-            color: #667085;
-        }
-
-        /* ORDER ID */
-
-        .order-id-box {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 9px;
-            padding: 11px 17px;
-            border: 1px solid #bce8ce;
-            background: #f1fbf5;
-            color: #287b4c;
-            border-radius: 9px;
-            font-size: 16px;
-            margin-bottom: 28px;
-        }
-
-        .order-id-icon {
-            font-size: 20px;
-            color: #079455;
-        }
-
-        /* SUMMARY */
-
-        .invoice-summary {
-            width: 100%;
-            border: 1px solid #e1e5ea;
-            border-radius: 12px;
-            overflow: hidden;
-            text-align: left;
-            background: #fff;
-        }
-
-        .summary-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 19px 22px;
-            font-size: 19px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .summary-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: #eaf9f0;
-            color: #078b50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .summary-row {
-            min-height: 55px;
-            padding: 0 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 15px;
-            color: #344054;
-        }
-
-        .summary-row:last-child {
-            border-bottom: none;
-        }
-
-        .summary-row > span:first-child {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .row-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-        }
-
-        .row-icon.blue {
-            background: #edf7ff;
-            color: #1683d8;
-        }
-
-        .row-icon.purple {
-            background: #f2efff;
-            color: #7657d9;
-        }
-
-        .row-icon.green {
-            background: #eaf9f0;
-            color: #079455;
-        }
-
-        .row-icon.red {
-            background: #fff0f3;
-            color: #df4665;
-            font-weight: bold;
-        }
-
-        .paid-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: #eaf8df;
-            color: #278044;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .total-row {
-            font-size: 16px;
-        }
-
-        /* INVOICE READY */
-
-        .invoice-ready {
-            margin-top: 32px;
-            text-align: center;
-        }
-
-        .invoice-document-icon {
-            position: relative;
-            width: 88px;
-            height: 88px;
-            margin: 0 auto 13px;
-            border-radius: 50%;
-            background: #effbf3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .document-paper {
-            width: 39px;
-            height: 51px;
-            background: #fff;
-            border: 2px solid #344054;
-            border-radius: 4px;
-            position: relative;
-            padding: 10px 6px;
-            box-sizing: border-box;
-        }
-
-        .document-paper:before {
-            content: "";
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 12px;
-            height: 12px;
-            background: #effbf3;
-            border-left: 2px solid #344054;
-            border-bottom: 2px solid #344054;
-        }
-
-        .document-paper span {
-            display: block;
-            height: 3px;
-            background: #8a9aaa;
-            margin-bottom: 5px;
-            border-radius: 2px;
-        }
-
-        .document-paper span:first-child {
-            width: 22px;
-            background: #079455;
-        }
-
-        .download-circle {
-            position: absolute;
-            right: 11px;
-            bottom: 9px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #079455;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 19px;
-            font-weight: bold;
-        }
-
-        .invoice-ready h2 {
-            margin: 0 0 8px;
-            font-size: 22px;
-            color: #172033;
-        }
-
-        .invoice-ready p {
-            margin: 0 0 20px;
-            font-size: 15px;
-            color: #667085;
-        }
-
-        /* DOWNLOAD BUTTON */
-
-        .download-invoice-btn {
-            width: min(400px, 100%);
-            min-height: 58px;
-            border: none;
-            border-radius: 9px;
-            background: #079455;
-            color: white;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 5px 14px rgba(7, 148, 85, 0.20);
-            transition: 0.2s;
-        }
-
-        .download-invoice-btn:hover {
-            background: #067a47;
-            transform: translateY(-1px);
-        }
-
-        .download-invoice-btn:active {
-            transform: translateY(0);
-        }
-
-        /* PHONE */
-
-        @media (max-width: 600px) {
-
-            .invoice-success-page {
-                padding: 28px 16px 32px;
-                border-radius: 14px;
-            }
-
-            .success-icon {
-                width: 68px;
-                height: 68px;
-                font-size: 42px;
-                margin-bottom: 16px;
-            }
-
-            .invoice-thank-you {
-                font-size: 32px;
-            }
-
-            .invoice-success-text {
-                font-size: 14px;
-                margin-bottom: 18px;
-            }
-
-            .order-id-box {
-                max-width: 100%;
-                font-size: 13px;
-                padding: 10px 12px;
-                margin-bottom: 20px;
-                word-break: break-word;
-            }
-
-            .summary-title {
-                padding: 16px;
-                font-size: 17px;
-            }
-
-            .summary-row {
-                min-height: 58px;
-                padding: 8px 14px;
-                font-size: 13px;
-            }
-
-            .summary-row > span:first-child {
-                gap: 7px;
-            }
-
-            .row-icon {
-                width: 25px;
-                height: 25px;
-                min-width: 25px;
-            }
-
-            .paid-badge {
-                padding: 5px 9px;
-                font-size: 12px;
-            }
-
-            .invoice-ready {
-                margin-top: 26px;
-            }
-
-            .invoice-ready h2 {
-                font-size: 20px;
-            }
-
-            .invoice-ready p {
-                font-size: 13px;
-            }
-
-            .download-invoice-btn {
-                width: 100%;
-                min-height: 54px;
-                font-size: 16px;
-            }
-        }
-
-    `;
-
-    /* Remove previous invoice style if already present */
-
-    const oldStyle = document.getElementById('invoiceSuccessStyle');
-
-    if (oldStyle) {
-        oldStyle.remove();
-    }
-
-    document.head.appendChild(style);
-
-
-    /* =====================================================
-       PRINT / SAVE INVOICE
-       ===================================================== */
-
+    /*
+     * PRINT ONLY INVOICE
+     * Website ka baaki content print nahi hoga.
+     */
     window.printInvoiceOnly = function () {
+
+        const invoice = document.getElementById('invoice1');
+
+        if (!invoice) {
+            alert('Invoice not found!');
+            return;
+        }
 
         const printWindow = window.open(
             '',
             '_blank',
-            'width=850,height=1000'
+            'width=800,height=900'
         );
-
-        if (!printWindow) {
-            alert(
-                'Please allow pop-ups for this website to download the invoice.'
-            );
-            return;
-        }
-
-        const itemsHTML = order.items.map(i => `
-            <tr>
-                <td>${i.emoji || ''} ${i.name}</td>
-                <td>${i.qty}</td>
-                <td>${money(i.price)}</td>
-                <td>${money(i.price * i.qty)}</td>
-            </tr>
-        `).join('');
-
-        printWindow.document.open();
 
         printWindow.document.write(`
             <!DOCTYPE html>
-
             <html>
-
             <head>
-
-                <meta charset="UTF-8">
-
-                <meta
-                    name="viewport"
-                    content="width=device-width, initial-scale=1.0"
-                >
-
-                <title>
-                    Invoice - ${order.id}
-                </title>
+                <title>Invoice - ${order.id}</title>
 
                 <style>
 
@@ -1408,171 +998,96 @@ function showInvoice(order) {
                     body {
                         margin: 0;
                         padding: 0;
-                        background: #fff;
-                        font-family: Arial, Helvetica, sans-serif;
-                        color: #172033;
+                        background: white;
+                        font-family: Arial, sans-serif;
                     }
 
                     body {
-                        padding: 10mm;
+                        width: 100%;
                     }
 
                     .invoice {
                         width: 100%;
                         max-width: 190mm;
-                        margin: auto;
+                        margin: 0 auto;
+                        padding: 5mm;
+                        color: #111;
+                        background: white;
                     }
 
-                    .success {
-                        text-align: center;
+                    .invoice h2 {
+                        margin: 0 0 8px 0;
+                        font-size: 22px;
                     }
 
-                    .success-circle {
-                        width: 55px;
-                        height: 55px;
-                        margin: 0 auto 10px;
-                        border-radius: 50%;
-                        background: #e9f8ef;
-                        color: #079455;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 34px;
-                        font-weight: bold;
-                    }
-
-                    h1 {
-                        margin: 0;
-                        font-size: 30px;
-                    }
-
-                    .sub {
-                        margin: 7px 0 15px;
-                        color: #667085;
-                        font-size: 12px;
-                    }
-
-                    .order-id {
-                        display: inline-block;
-                        padding: 8px 12px;
-                        border: 1px solid #bce8ce;
-                        background: #f1fbf5;
-                        color: #287b4c;
-                        border-radius: 7px;
-                        font-size: 12px;
-                    }
-
-                    .box {
-                        margin-top: 20px;
-                        border: 1px solid #ddd;
-                        border-radius: 9px;
-                        overflow: hidden;
-                    }
-
-                    .box-title {
-                        padding: 11px 14px;
-                        border-bottom: 1px solid #ddd;
-                        font-size: 15px;
-                        font-weight: bold;
-                    }
-                    .row {
-                        display: flex;
-                        justify-content: space-between;
-                        gap: 15px;
-                        padding: 9px 14px;
-                        border-bottom: 1px solid #eee;
-                        font-size: 11px;
-                    }
-                    .row:last-child {
-                        border-bottom: none;
-                    }
-                    .paid {
-                        color: #278044;
-                        font-weight: bold;
-                    }
-                    .total {
-                        font-size: 13px;
-                        font-weight: bold;
-                    }
-                    table {
+                    .invoice table {
                         width: 100%;
                         border-collapse: collapse;
-                        margin-top: 18px;
+                        margin-top: 10px;
                     }
-                    th,
-                    td {
+
+                    .invoice th,
+                    .invoice td {
                         border: 1px solid #ddd;
-                        padding: 7px;
-                        font-size: 10px;
+                        padding: 6px;
+                        font-size: 11px;
                         text-align: left;
                     }
-                    th {
+
+                    .invoice th {
                         font-weight: bold;
-                        background: #f8f9fa;
                     }
-                    .amount-box {
-                        margin-top: 12px;
-                        margin-left: auto;
-                        width: 230px;
-                    }
-                    .amount-row {
-                        display: flex;
-                        justify-content: space-between;
-                        padding: 4px 0;
-                        font-size: 11px;
-                    }
-                    .grand-total {
-                        border-top: 1px solid #222;
-                        margin-top: 4px;
-                        padding-top: 7px;
-                        font-weight: bold;
-                        font-size: 13px;
-                    }
-                    .footer {
-                        text-align: center;
-                        margin-top: 18px;
-                        font-size: 10px;
-                        color: #777;
-                    }
+
                     @page {
                         size: A4;
                         margin: 10mm;
                     }
+
                     @media print {
 
+                        html,
                         body {
+                            width: 210mm;
+                            height: auto;
+                            margin: 0;
                             padding: 0;
                         }
+
                         .invoice {
                             width: 190mm;
                             max-width: 190mm;
+                            margin: 0 auto;
+                            padding: 0;
                         }
+
                     }
+
                 </style>
             </head>
+
             <body>
-                <div class="invoice">
-                    <div class="success">
-                        <div class="success-circle">✓</div>
-                        <h1>Thank You!</h1>
-                        <div class="sub">Your order has been placed successfully.</div>
-                        <div class="order-id">Order ID:<b>${order.id}</b>
-                        </div>
-                    </div>
-                    <div class="box">
-                        <div class="box-title">
-                            Order Summary
-                        </div>
-                        <div class="row">
-                            <span>Order Date</span>
-                            <b>${orderDate}</b>
-                        </div>
-                        <div class="row">
-                            <span>Payment Method</span>
-                            <b>${paymentMethod}</b>
-                        </div>
-                        <div class="row"
-                        
+
+                ${invoice.outerHTML}
+
+                <script>
+                    window.onload = function () {
+                        setTimeout(function () {
+                            window.print();
+                        }, 300);
+                    };
+
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                <\/script>
+
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+    };
+}    
 /* ---------------- orders (user) ---------------- */
 function renderOrders(){
   const main = document.getElementById('mainView');
