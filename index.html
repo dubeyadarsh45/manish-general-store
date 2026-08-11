@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Midnight Store</title>
+<title>Manish General Store</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -864,7 +864,7 @@ function showInvoice(order) {
 
             <div class="invoice" id="invoice1">
 
-                <h2>The Midnight Store</h2>
+                <h2>Manish General Store</h2>
 
                 <div style="font-size:12px;color:#666;margin-bottom:12px">
                     Tax Invoice · Order ${order.id}<br>
@@ -1095,7 +1095,7 @@ function renderOrders(){
   main.innerHTML = `
     <div style="padding-top:26px">
       <h2 class="section-title">📦 Order history</h2>
-      <p class="section-sub">Everything you've bought from The Midnight Store, day or night.</p>
+      <p class="section-sub">Everything you've bought from Manish General Store, day or night.</p>
       <button class="btn btn-ghost btn-sm" style="margin-bottom:16px" onclick="setMainView('shop')">← Back to shop</button>
       ${myOrders.length===0? `<div class="empty"><div class="big">📦</div>No orders yet. Time to raid the shelves.</div>` :
       myOrders.map(o=>`
@@ -1179,7 +1179,7 @@ function renderAdmin(){
   main.innerHTML = `
     <div style="padding-top:26px">
       <h2 class="section-title">Admin control panel</h2>
-      <p class="section-sub">Manage inventory, orders and customers for The Midnight Store.</p>
+      <p class="section-sub">Manage inventory, orders and customers for Manish General Store.</p>
       <div class="tab-strip">${tabs.map(([k,l])=>`<button class="${adminTab===k?'active':''}" onclick="setAdminTab('${k}')">${l}</button>`).join('')}</div>
       <div id="adminBody"></div>
     </div>
