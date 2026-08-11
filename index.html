@@ -864,7 +864,7 @@ function showInvoice(order) {
 
             <div class="invoice" id="invoice1">
 
-                <h2>The Midnight Store</h2>
+                <h2>Manish General Store</h2>
 
                 <div style="font-size:12px;color:#666;margin-bottom:12px">
                     Tax Invoice · Order ${order.id}<br>
@@ -963,10 +963,7 @@ function showInvoice(order) {
         </div>
     `;
 
-    /*
-     * PRINT ONLY INVOICE
-     * Website ka baaki content print nahi hoga.
-     */
+    
     window.printInvoiceOnly = function () {
 
         const invoice = document.getElementById('invoice1');
@@ -1067,140 +1064,6 @@ function showInvoice(order) {
         printWindow.document.close();
     };
 }
-/* ---------------- invoice navigation ----------------
-   Returns the user from the order-confirmation invoice to the shop. */
-function backToShopFromInvoice(){
-  mainViewMode = 'shop';
-  closeDrawers();
-  render();
-}
-
-/* ---------------- reliable invoice printing ----------------
-   Prints the invoice in a clean, standalone document instead of
-   printing the whole application DOM. This avoids blank previews
-   on browsers/mobile devices caused by modal/print CSS handling. */
-function printInvoice(){
-  const invoice = document.getElementById('invoiceEl');
-  if(!invoice){
-    toast('Invoice is not ready. Please try again.');
-    return;
-  }
-
-  const printWindow = window.open('', '_blank', 'width=900,height=700');
-  if(!printWindow){
-    toast('Please allow pop-ups to print the invoice.');
-    return;
-  }
-
-  const invoiceHTML = invoice.outerHTML;
-
-  printWindow.document.open();
-  printWindow.document.write(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Midnight Store - Invoice</title>
-<style>
-  @page { size: A4 portrait; margin: 12mm; }
-
-  * { box-sizing: border-box; }
-
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: #fff;
-    color: #111;
-    font-family: Inter, Arial, sans-serif;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  body {
-    padding: 0;
-  }
-
-  .invoice {
-    width: 100%;
-    max-width: 186mm;
-    margin: 0 auto;
-    padding: 8mm;
-    border: 1px solid #222;
-    border-radius: 0;
-    background: #fff;
-    color: #111;
-    font-family: Inter, Arial, sans-serif;
-    font-size: 10pt;
-    line-height: 1.25;
-    box-shadow: none;
-    overflow: hidden;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .invoice h2 {
-    margin: 0 0 2mm;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 20pt;
-    color: #111;
-  }
-
-  .invoice table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 9pt;
-    margin-top: 3mm;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .invoice th,
-  .invoice td {
-    text-align: left;
-    padding: 1.5mm 1mm;
-    border-bottom: 1px solid #ddd;
-    color: #111;
-    break-inside: avoid;
-  }
-
-  .invoice .tot {
-    font-weight: 800;
-    font-size: 12pt;
-    border-top: 1px solid #222;
-    margin-top: 2mm;
-    padding-top: 2mm;
-  }
-
-  @media print {
-    body { padding: 0; }
-    .invoice {
-      max-width: none;
-      width: 100%;
-    }
-  }
-</style>
-</head>
-<body>
-${invoiceHTML}
-<script>
-  window.addEventListener('load', function(){
-    setTimeout(function(){
-      window.focus();
-      window.print();
-    }, 250);
-  });
-
-  window.onafterprint = function(){
-    setTimeout(function(){
-      window.close();
-    }, 100);
-  };
-<\/script>
-</body>
-</html>`);
-  printWindow.document.close();
-}
-
 /* ---------------- orders (user) ---------------- */
 function renderOrders(){
   const main = document.getElementById('mainView');
